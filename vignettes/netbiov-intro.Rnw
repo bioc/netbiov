@@ -1,0 +1,1458 @@
+\documentclass[11pt]{article}
+\usepackage{makeidx}  % allows for indexgeneration
+\usepackage[dvips]{graphicx}
+\usepackage{dsfont}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+%\usepackage{bbb}
+\usepackage{Sweave}
+%################
+<<style-Sweave, eval=TRUE, echo=FALSE, results=tex>>=
+BiocStyle::latex()
+@
+
+\usepackage{epsfig}
+\usepackage{color}
+\usepackage{psfrag}
+
+\usepackage[english]{babel}
+\usepackage{rotating}
+\usepackage{rotate}
+\usepackage{lscape}
+%\usepackage{stmaryrd}
+\usepackage{eufrak}
+\usepackage{bbm}
+\usepackage{marvosym}
+\usepackage{txfonts}
+\usepackage{pgf}
+\usepackage{tikz}
+\usepackage[latin1]{inputenc}
+\definecolor{verboxcolor}{RGB}{235,235,235}
+\usepackage{tikz}
+\usepackage{verbatim}
+
+
+
+
+
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%
+%\SweaveOpts{engine=R,eps=FALSE}
+%\VignetteIndexEntry{netbiov: An R package for visualizing biological networks}
+%\VignetteDepends{netbiov}
+%\VignetteKeywords{network, visualization, R}
+%\VignettePackage{netbiov}
+
+
+<<preliminaries,echo=FALSE,results=hide>>=
+library(netbiov)
+options(SweaveHooks=list(twofig=function() {par(mfrow=c(1,2))},
+                         twofig2=function() {par(mfrow=c(2,1))},
+                         onefig=function() {par(mfrow=c(1,1))}))
+@
+
+
+
+%%%%%%%%%%%%%%%%%%
+
+
+\title{Supplementary File: \\
+\textcolor{orange}{NetBioV}: An \R{} package for visualizing large network data in biology and medicine}
+
+\author{
+Shailesh Tripathi$^1$ and Matthias Dehmer$^2$ and Frank Emmert-Streib$^1$\footnote{Corresponding author: Frank Emmert-Streib}\\
+$^1$ Computational Biology and Machine Learning Laboratory\\ Center for Cancer Research and Cell Biology\\ School of Medicine, Dentistry and Biomedical Sciences\\ Faculty of Medicine, Health and Life Sciences\\Queen's University Belfast\\ 97 Lisburn Road, Belfast, BT9 7BL, UK\\ v@bio-complexity.com \\
+$^2$ Institute for Bioinformatics and Translational Research, UMIT \\Eduard Wallnoefer Zentrum 1, 6060, Hall in Tyrol, Austria}
+
+\date{}
+\maketitle
+
+\begin{abstract}
+  This is the supplementary file for our main manuscript containing instructions and various examples for the visualization capabilities of NetBioV - an R based software package. Due to the flexibility of NetBioV, allowing to combine different layout, color and feature styles with each other, there is a vast number of different network visualizations that can be realized. 
+
+\end{abstract}
+
+
+\newpage
+
+\setcounter{tocdepth}{3}
+\tableofcontents
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%\section{Installation of the R package NetBioV}
+%NetBioV depends of the 'igraph0' package that can be installed from the CRAN R library.
+%For the installation of NetBioV, the user needs to following some simple installation steps.
+%\begin{enumerate}
+%\item  Download the compressed tar package of NetBioV on your local directory
+%\item  Use the following command for the installation (execute in a terminal): 
+%\item[]R CMD INSTALL $netbiov\_2.4.tar$
+
+%\item For the instructions on the usage of NetBioV, please check the user manual  {\it{netbiov-manual.pdf}} (or page 46 in this document).
+%\end{enumerate}
+\section{Source code for Figure 1 A, B in the main manuscript }
+The following code allows to reproduce Figure 1 A and B in the main manuscript.
+\small{
+<<plotunif,fig=FALSE>>=
+############ Figure A #############
+library("igraph")
+library("netbiov")
+data("PPI_Athalina")
+gparm <- mst.plot.mod(g1, v.size=1.5,e.size=.25,
+colors=c("red", "orange", "yellow", "green"),
+mst.e.size=1.2,expression=abs(runif(vcount(g1), 
+max=5, min=1)), sf=-15, v.sf=5,
+mst.edge.col="white", layout.function=layout.fruchterman.reingold)
+
+############ Figure B #############
+library("igraph")
+library("netbiov")
+data("PPI_Athalina")
+
+data("color_list")
+
+gparm<- plot.abstract.nodes(g1, nodes.color=color.list$citynight, 
+lab.cex=1, lab.color="white", v.sf=-18, 
+layout.function=layout.fruchterman.reingold)
+@
+}
+\section{General guidelines for using  {\sc{NetBioV}}}
+
+In the following, we provide a gallery of networks demonstrating the usage of different layout styles, color schemes and combinations of these provided by our R package {\sc{NetBioV}}. Due to the fact that the functions we provide to visualize networks are object oriented, there is a vast combination of different visual effects one can generate from the base functions. Below, for every figure, the corresponding code is provided to reproduce the figures. We are including four example networks with the {\sc{NetBioV}} package, two artificially created networks with $10,000$ and $5,000$ nodes respectively, and a total number of edges of $32,761$ and $23,878$ respectively. Furthermore, we provide two biological networks, a gene regulatory network of B-Cell lymphoma inferred with BC3NET and the PPI network of {\it{Arabidopsis thaliana}}; see Table \ref{over} for details.  In {\sc{NetBioV}} the functions {\it{plot.modules}},  {\it{split.mst}},   {\it{plot.abstract.module}} and  {\it{plot.abstract.nodes}} require information about their modules for plotting the networks. For this reason there are two ways to specify this information. (1) The user defines the modules in the network by specifying a list of objects, where each component of the list object is a vector of vertex ids of a module. (2) If module information is not provided in this way  our plotting functions automatically predict modular information about the network using the  {\it{fastgreedy}} algorithm.
+
+\section{Brief introduction of networks available as example networks in NetBioV }
+\bf{Artificial Network}: First we generate a network of $10000$ and $5000$ nodes using {\it{barabasi.game}} function available in {\it{igraph}}. In the second step we select $n_s$ nodes  randomly of  degree greater than $5$. In the third step for each node in $n_s$, we select $n_e$ neighbors randomly of order $2$ and $3$ and draw edges between them.
+
+\bf{B-Cell Network}: This is a subnetwork of gene regulatory network of B-Cell inferred with \it{BC3NET} \cite{simoes_2012}.
+
+\bf{A. Thaliana Network}: This is a subnetwork of PPI network of the main network \cite{breitkreutz_2008}.
+
+
+
+\begin{table}[t!]
+\begin{tabular}{ccc}
+\hline
+Networks    &  number of vertices & number of edges \\
+\hline
+Artificial Network 1 & 10,000 & 32,761\\ 
+Artificial Network 2& 5,000 & 23,878 \\
+B-Cell Network & 2,498 &  2,654 \\
+{\it A. Thaliana} & 1,212 & 2,574 \\
+\hline
+\end{tabular}
+\caption{Summary of the networks, we provide as part of the {\sc NetBioV} package to demonstrate its visualization capabilities. }\label{over} 
+\end{table}
+
+
+
+
+
+
+
+\subsection{Plotting time for networks using {\sc{NetBioV}}}
+
+The plotting time of any network using {\sc{NetBioV}} depends on the size of the network and its edge density.  To provide the user with some estimates of the expected plotting times, we compared two artificially generated networks with two biological networks on an Apple computer with an {\it{intel i3}} processor and {\it{8GB RAM}}. The estimated time of plotting these networks are given in the Table \ref{time_tb}.
+
+
+
+
+\begin{table}[h!]
+\begin{tabular}{p{3.5 cm}lp{2 cm}lp{2 cm}lp{2cm}l }
+\hline
+Networks  $\backslash$ Functions  &  mst.plot.mod & plot.modules & plot.abstract.nodes \\
+\hline
+Artificial Network 1 & 5.50 minutes & 25.6 seconds & 19.35 seconds\\ 
+Artificial Network 2& 1.44 minutes &  9.94 seconds & 4.31 seconds\\
+B-Cell Network & 6 seconds & 2 seconds & 1.1 seconds \\
+{\it A. Thaliana} & 3.30 seconds & 1.2 seconds & 1.1 seconds \\
+\hline
+\end{tabular}
+\caption{Comparison of estimated plotting times for four different networks using {\sc{NetBioV}}.}\label{time_tb} 
+\end{table}
+
+
+
+\subsection{Loading example data }
+\small{
+
+<<plotunif,fig=FALSE>>=
+
+########## Loading the artificial network with $10,000$ edges 
+data("artificial1.graph")
+########## Loading the artificial network with $5,000$ edges 
+data("artificial2.graph")
+########## Loading the B-Cell network and module information 
+data("gnet_bcell")
+data("modules_bcell")
+########## Loading the Arabidopsis Thaliana network and module information
+data("PPI_Athalina")
+data("modules_PPI_Athalina")
+
+########## Loading a predefined list of colors 
+data("color_list")
+@
+}
+
+\subsection{Interactive representation }
+
+In order to modify a network interactively one, first, needs to plot a network with any of the functions we are providing. Then, one uses the output of these function to call the function 'tkplot.netbiov'. Below is an example.
+
+
+\small{
+<<plotunif,fig=FALSE>>=
+data("artificial2.graph") 
+xx<- plot.abstract.nodes(g1, layout.function=layout.fruchterman.reingold, 
+v.sf=-30, lab.color="green")
+#tkplot.netbiov(xx)
+@
+}
+
+
+\section{Comparison of NetBioV with other network visualization software}
+
+
+
+\subsection{yEd}
+
+
+yEd is a multi-purpose graph visualization software that does not target any particular networks from application domains. For this reason, it offers no functionality with respect to the 'modular structure' in networks from biology or medicine, as provided by NetBioV. For instance, NetBioV allows the automatic identification of the modules within a network.
+
+yEd allows the visualization of $5$ major graph layout styles:
+\begin{itemize}
+\item Hierarchical Layout
+\item Organic Layout
+\item Orthogonal Layout
+\item Tree Layout
+\item Circular Layout
+\end{itemize}
+All of these layouts are available in NetBioV, except 'orthogonal layout'. The reason for this is that the resulting arrangement of the network, looks like a electronic circuit, which is for networks with more than $100$ genes difficult to apply. 
+
+All of these layout styles can only be applied 'globally' to the network as a whole, but not to selected parts of a network, as possible with NetBioV. This limit the number of resulting graph layout styles to exactly $5$.
+
+Also, yEd does not provide information flow layout styles, as available in NetBioV.
+
+yEd does not allow to identify modules by selecting an algorithm, as is available in NetBioV.
+
+
+
+\subsection{Cytoscape}
+
+Cytoscape allows the usage of a set of commercial layouts provided by yWorks, on which yEd is based too (see above for graph layout styles of yEd). In addition, Cytoscape provides the following layouts that have been implemented by the Cytoscape develops:
+\begin{itemize}
+\item Grid Layout
+\item Spring-Embedded Layout
+\item Circle Layout
+\item Group Attributes Layout
+\end{itemize}
+All of these graph layouts, except Grid Layout, are also available from NetBioV. Grid Layout show a regular arrangements of the nodes in a graph which is hard to apply to network from biology or medicine.
+
+The Group Attributes Layout can be obtained by NetBioV if modules are defined in the network, either by the application of an algorithm or manually. In addition, NetBioV allows to specify any graph layout for each module separately. Also, Cytoscape does not provide information flow layout styles, as available in NetBioV.
+
+
+\subsection{visANT}
+
+visANT is a graph visualization software that has been specifically designed to visualize biological networks, like NetBioV.
+
+The graph layouts provided by visANT are similar to yEd and Cytoscape, and limited to global graph layouts, meaning that one cannot select parts of a network and use different layout for these, as possible with NetBioV. Also, visANT does not provide information flow layout styles, as available in NetBioV.
+
+
+visANT does not allow to identify modules by selecting an algorithm, as available in NetBioV.
+
+visANT does not allow to save figures in the pdf format, as available in NetBioV. Instead, visANT allows the user to save figures in a svg format. If a pdf format is required, e.g., for publications, an external converter software needs to be used (not part of visANT).
+
+\newpage
+\subsection{Overview table}
+
+The following table shows a comparison of features provided by NetBioV, yEd, Cytoscape and visANT.
+
+
+
+
+%\begin{center}
+    \begin{table}
+    \hskip-2.0cm
+\begin{tabular}{| p{4cm} | p{3.0cm}  | p{1.2cm}|p{1.6cm}|p{1.2cm}|p{1.1cm}|p{1.5cm}| }
+\hline
+  Visualization software$\Rightarrow$ Features $\Downarrow$& NetBioV & igraph & Cytoscape & VisANT & yEd&  RgraphViz\\
+   \hline                        
+   Application type & R (based on igraph)  & R & Java & Java & Java (yWorks) & R \\
+   \hline
+   Input & Use formats as igraph & Tab delim, graphml, gml, graphdb & BioPax, XML, XGMML, GML, GRAPHML, Tab delim & Tab delim, BioPax, XML & YGF, GML, XGML, excel, TGF, GED & Tab delim\\
+   \hline
+   Graphical user interface & Yes (via tkplot in igraph) & Yes & Yes & Yes &Yes & No\\ 
+   %\hline
+   %Graph editing & No & No & Yes & Yes & Yes & No \\
+   \hline
+   Save image as a postscript or pdf & Yes & Yes & Yes & No & Yes & Yes\\
+   \hline
+   Save all graph features & Data frame (Tab delim) or  a R object of netbiv class & R object of igraph class & Cys format & Txt or XML & Graphml, GML, TGF, XGML & R object of graph class \\
+   \hline
+   \textcolor{blue}{Modular} view with different layout options for modules & \textcolor{orange}{Yes} & No & No & No & No & No \\
+   \hline
+   Multiroot-tree visualization (\textcolor{green}{information flow}) & \textcolor{orange}{Yes}  & No & No & No & No & No \\
+   \hline
+   \textcolor{green}{Information flow} between sets of nodes or modules & \textcolor{orange}{Yes}  & No & No & No & No & No \\
+   \hline
+   Abstract view of a network (\textcolor{blue}{modular} layout) & \textcolor{orange}{Yes}  & No & No & No & No & No \\
+   \hline
+   \textcolor{red}{Global} layout & Use force-based algorithm \textcolor{orange}{on minimum spanning tree of a network} to plot nodes. Then,  add remaining edges and color, based on distance.  & Force-based & Force-based & Force-based & Force-based & Force-based \\
+    
+   \hline  
+\end{tabular}
+\caption{Comparison of different network visualization software with NetBioV.}
+\end{table}
+%\end{center}
+\newpage
+\section{Network gallery and example code}
+\vspace{-3mm}
+\subsection{\textcolor{red}{Global} layout style of artificial network 1}
+\vspace{-5mm}
+%%%%%%%%
+\begin{figure}[!h]
+\begin{center}
+\small{
+<<global1,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.07>>=
+###Generation of the network:
+require(netbiov)
+data("artificial1.graph")
+hc <- rgb(t(col2rgb(heat.colors(20)))/255,alpha=.2)
+cl <- rgb(r=0, b=.7, g=1, alpha=.05)
+xx <- mst.plot.mod(g1, vertex.color=cl, v.size=3, sf=-20,
+colors=hc, e.size=.5, mst.e.size=.75, 
+layout.function=layout.fruchterman.reingold)
+@
+\caption{\label{global1} Global layout style of artificial network 1 ($|V| = 10,000$, $|E| = 32,761$). The positions of the  nodes in the MST (minimum spanning tree) are determined by Fruchterman-Reingold algorithm. Edges found by the MST are white, other edges are shades of red to yellow. }
+
+}
+\end{center}
+\end{figure}
+\newpage
+
+\subsection{\textcolor{red}{Global} layout style of artificial network 2}
+\vspace{-3mm}
+
+\begin{figure}[!h]
+\centering
+\small{
+<<global2,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>=
+require(netbiov)
+data("artificial2.graph")
+hc <- rgb(t(col2rgb(heat.colors(20)))/255,alpha=.2)
+cl <- rgb(r=1, b=.7, g=0, alpha=.1)
+fn <- function(x){layout.reingold.tilford(x, circular=TRUE, 
+root=which.max(degree(x)))}
+xx <- mst.plot.mod(g1, vertex.color=cl, v.size=1, sf=30, 
+colors=hc, e.size=.5, mst.e.size=.75,
+layout.function=fn, layout.overall=layout.kamada.kawai)
+@
+}
+\caption{\label{global2} Global layout style of artificial network 2 ($|V| = 5,000$, $|E| = 23,878 $). Position of the nodes in the MST are determined by combining the Reingold-Tilford and the Kamada-Kawai algorithm. Edges found by the MST are white, other edges are shades of red to yellow. 
+}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+
+\subsection{\textcolor{blue}{Modular} layout style of artificial network 1}
+\vspace{-3mm}
+
+\begin{figure}[!h]
+\centering
+\small{
+<<mod1,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>=
+data("artificial1.graph")
+xx <- plot.modules(g1, v.size=.8, 
+modules.color=c("red", "yellow"), 
+mod.edge.col=c("green", "purple"), sf=30)
+@
+}
+\caption{\label{mod1} Modular layout style of artificial network 1 ($|V| = 10,000$, $|E| = 32,761$),  modules are plotted using Reingold-Tilford and Fruchterman-Reingold algorithm. Each module is colored in red or yellow color and edges of modules are colored in purple and green, the edges connecting modules are colored in grey.
+}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+
+\subsection{\textcolor{green}{Multiroot-tree (hierarchical) } layout style of artificial network 1}
+\vspace{-3mm}
+
+\begin{figure}[!h]
+\centering
+\small{
+<<mrt1,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>=
+data("artificial1.graph")
+cl <- c(rgb(r=1, b=1, g=0, alpha=.2))
+cl <- rep(cl, 3)
+ecl <-   c(rgb(r=.7, b=.7, g=.7, alpha=.2), rgb(r=.7, b=.7, g=.7, alpha=.2), 
+rgb(r=0, b=0, g=1, alpha=.2), rgb(r=.7, b=.7, g=.7, alpha=.2))
+ns <- c(1581, 1699, 4180, 4843, 4931, 5182, 5447, 5822, 6001,
+6313, 6321, 6532, 7379, 8697, 8847, 9342)
+xx <- level.plot(g1, tkplot=FALSE, level.spread=TRUE, v.size=1, 
+vertex.colors=cl,  edge.col=ecl, initial_nodes=ns, order_degree=NULL,
+e.curve=.25)
+@
+}
+\caption{\label{mrt1} Multiroot-tree (hierarchical) layout style of artificial network 1 ($|V| = 10,000$, $|E| = 32,761$). Edges connecting nodes on different levels are in grey and edges connected nodes on same level are shown in green. 
+}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\textcolor{blue}{Modular} layout style of artificial network 2}
+\vspace{-3mm}
+
+\begin{figure}[!h]
+\centering
+\small{
+<<mod2,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>=
+data("artificial2.graph")
+xx <- plot.modules(g1,mod.lab=TRUE, color.random=TRUE, mod.edge.col="grey",
+ed.color="gold", sf=15, v.size=.5,layout.function=layout.fruchterman.reingold,
+lab.color="grey", modules.name.num=FALSE, lab.cex=1, lab.dist=5)
+@
+}
+\caption{\label{mod2} Modular view of artificial network 2 ($|V| = 5,000$, $|E| = 23,878 $), emphasizing the labels of each module. The colors of the modules are selected randomly.
+}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{Abstract \textcolor{blue}{modular} view of artificial network 2}
+\vspace{-3mm}
+
+\begin{figure}[!h]
+\centering
+\small{
+<<mod3,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>=
+data("artificial2.graph")
+xx<- plot.abstract.nodes(g1, layout.function=layout.fruchterman.reingold, 
+v.sf=-30, lab.color="green")
+@
+}
+\caption{\label{mod3} Abstract modular view of artificial network 2 ($|V| = 5,000$, $|E| = 23,878 $) emphasizing the labels of each module, the size of each module and the total number of connections between modules. The size of each node represents the number of nodes in that module and the edge-width is proportional to the number of edges between two modules. 
+}
+\end{figure}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\textcolor{red}{Global} view of a component of the B-Cell network}
+\vspace{-3mm}
+
+\begin{figure}[!h]
+\centering
+\small{
+<<plotnetbiov1,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>=
+data("gnet_bcell")
+ecl <- rgb(r=0, g=1, b=1, alpha=.6)
+ppx <- mst.plot.mod(gnet, v.size=degree(gnet),e.size=.5,
+colors=ecl,mst.e.size=1.2,expression=degree(gnet),
+mst.edge.col="white", sf=-10, v.sf=6)
+@
+}
+\caption{\label{plotnetbiov1} Global view of a component of the B-Cell network ($|V| = 2,498$, $|E| = 2,654 $) emphasizing the expression of the genes. The size of each gene is proportional to the degree of the gene. The color of a gene reflects the gene expression value. The minimum spanning tree edges in the network are shown in white and all remaining edges are shown in green, in the background. }
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\newpage
+\subsection{\textcolor{green}{Information flow} layout of a component of the B-Cell network}
+\vspace{-3mm}
+
+
+\begin{figure}[!h]
+\centering \small{ 
+<<plotnetbiov2,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>=
+data("gnet_bcell")
+cl <- rgb(r=.6, g=.6, b=.6, alpha=.5)
+xx <- level.plot(gnet, init_nodes=20,tkplot=FALSE, level.spread=TRUE,
+order_degree=NULL, v.size=1, edge.col=c(cl, cl, "green", cl),
+vertex.colors=c("red", "red", "red"), e.size=.5, e.curve=.25)
+data("gnet_bcell")
+cl <- rgb(r=.6, g=.6, b=.6, alpha=.5)
+xx <- level.plot(gnet, init_nodes=20,tkplot=FALSE, level.spread=TRUE,
+order_degree=NULL, v.size=1, edge.col=c(cl, cl, "green", cl),
+vertex.colors=c("red", "red", "red"), e.size=.5, e.curve=.25)
+
+@
+}
+\caption{Multiroot-tree (hierarchical) view of a component of the B-Cell network ($|V| = 2,498$, $|E| = 2,654 $).  
+}
+
+\end{figure}
+
+
+
+
+
+
+
+
+
+\newpage
+\subsection{\textcolor{blue}{Modular} view of a component of the B-Cell network}
+\vspace{-3mm}
+
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<plotnetbiov3,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+data("gnet_bcell")
+xx<-plot.modules(gnet, color.random=TRUE, v.size=1, 
+layout.function=layout.graphopt)
+
+@
+}
+\caption{Modular view of a component of the B-Cell network ($|V| = 2,498$, $|E| = 2,654 $).  Each module is randomly colored.
+}
+\end{figure}
+
+
+
+
+
+
+
+
+
+\newpage
+
+\subsection{\textcolor{green}{Information flow} layout of a component of the B-Cell network}
+\vspace{-3mm}
+
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<plotnetbiov4,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>=
+data("gnet_bcell")
+xx <- plot.modules(gnet, modules.color=cl, mod.edge.col=cl,
+sf=5, nodeset=c(2,5,44,34), 
+mod.lab=TRUE, v.size=.9, 
+path.col=c("blue",  "purple", "green"), 
+col.s1 = c("yellow", "pink"), 
+col.s2 = c("orange", "white" ),
+e.path.width=c(1.5,3.5), v.size.path=.9)
+
+@
+}
+\caption{Information flow view of a component of the B-Cell network ($|V| = 2,498$, $|E| = 2,654 $). In this figure, we emphasize the information flow between two pairs of gene sets. We show the shortest paths between modules $2$, $5$ and modules $34$, $44$. The shortest paths between modules is highlighted by a thick blue line and internal paths within the modules are shown in purple and green colors.}
+\end{figure}
+
+
+
+
+
+\newpage
+\subsection{Abstract \textcolor{blue}{modular} view of a component of the B-CELL network}
+\vspace{-3mm}
+
+\begin{figure}[!h]
+\centering \small{ 
+<<plotnetbiov5,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+data("gnet_bcell")
+xx<-plot.abstract.nodes(gnet, v.sf=-35,
+layout.function=layout.fruchterman.reingold, lab.color="white",lab.cex=.75)
+@
+}
+\caption{Abstract modular view of a component of the B-CELL network ($|V| = 2,498$, $|E| = 2,654 $).  Node-size is proportional to the total number of genes in a module and the edge size is proportional to the total number of connections between modules.
+}
+\end{figure}
+
+
+
+
+
+
+
+
+
+\newpage
+\subsection{\textcolor{red}{Global} layout style of the {\it{A. Thaliana}} network: Fruchterman-Reingold}
+\vspace{-3mm}
+
+\begin{figure}[!h]
+\centering \small{ 
+<<plotnetbiov6,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+
+data("PPI_Athalina")
+data("color_list")
+
+id <- mst.plot(g1, colors=c("purple4","purple"),mst.edge.col="green", 
+vertex.color = "white",tkplot=FALSE, 
+layout.function=layout.fruchterman.reingold)
+
+@ 
+}
+\caption{Global layout style of the {\it{A. Thaliana}} network. The position of the nodes in the MST are determined by Fruchterman-Reingold, edges found by the MST are shown in green, other edges are shades of purple. 
+}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+
+%%%%%%%%
+\subsection{\textcolor{red}{Global} layout style of the {\it{A. Thaliana}} network: Kamada-Kawai}
+\vspace{-3mm}
+
+\begin{figure}[!h]
+\centering \small{
+<<plotnetbiov7,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+data("PPI_Athalina")
+data("color_list")
+id <- mst.plot(g1, colors=c("purple4","purple"),mst.edge.col="green", 
+vertex.color = "white",tkplot=FALSE, layout.function=layout.kamada.kawai)
+@ 
+}
+\caption{Global layout style of the {\it{A. Thaliana}} network. Positions of the nodes in the MST are determined by Kamada-Kawai, edges found by the MST are green, other edges are shades of purple.
+}  
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+
+%%%%%%%%
+\subsection{\textcolor{blue}{Modular} layout of the {\it{A. Thaliana}} network: Module highlighting}
+\vspace{-3mm}
+
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<plotnetbiov8,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+data("PPI_Athalina")
+data("color_list")
+data("modules_PPI_Athalina")
+
+cl <- rep("blue", length(lm))
+cl[1] <- "green"
+
+id <- plot.modules(g1, layout.function = layout.graphopt, modules.color = cl, 
+mod.edge.col=c("green","darkgreen") , tkplot=FALSE, ed.color = c("blue"),sf=-25)
+
+@ 
+}
+\caption{Modular layout of the {\it{A. Thaliana}} network. Each module is plotted separately, by using a force-based algorithm (layout.graphopt). The nodes in the modules are shown in blue, except for module $1$ where all vertices are shown in green. The edge color of the modules is shown in green.}  
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+
+%%%%%%%%
+\subsection{\textcolor{blue}{Modular} layout of the {\it{A. Thaliana}} network: Colorize modules}
+\vspace{-3mm}
+
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<plotnetbiov9,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+data("PPI_Athalina")
+
+data("color_list")
+data("modules_PPI_Athalina")
+cl <- rep("blue", length(lm))
+cl[1] <- "green"
+cl[2] <- "orange"
+cl[10] <- "red"
+
+id <- plot.modules(g1, mod.list = lm, 
+layout.function = layout.graphopt, modules.color = cl, 
+mod.edge.col=c("green","darkgreen") , 
+tkplot=FALSE, ed.color = c("blue"),sf=-25)
+
+@ 
+}
+\caption{Modular layout of the {\it{A. Thaliana}} network. Each module is separately plotted by using a force-based algorithm (layout.graphopt). The nodes for the modules are shown in blue, except for module $1$, $2$ and $10$ where the vertices are shown in green, orange and red. The edge color of the modules is shown in green. }  
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+%\section{Examples}
+\subsection{\textcolor{blue}{Modular} layout of the {\it{A. Thaliana}} network: Fruchterman-Reingold}
+\vspace{-3mm}
+
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<plotnetbiov10,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+data("PPI_Athalina")
+data("modules_PPI_Athalina")
+data("color_list")
+
+id<-plot.modules(g1,mod.list=lm,layout.function=c(layout.fruchterman.reingold),
+modules.color="grey", mod.edge.col = sample(color.list$bright), tkplot=FALSE)
+@ 
+}
+\caption{Modular layout style of the {\it{A. Thaliana}} network, the coordinates of the nodes in each module are determined by Fruchterman-Reingold. The edge color in each module is given by 'mod.edge.col', the edge color between modules is grey. The modules are arranged by the number of nodes. The module with the largest number of nodes is placed into the center, modules of smaller sizes are arranged in a circular manner.
+}  
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\subsection{\textcolor{blue}{Modular} layout of the {\it{A. Thaliana}} network: Star layout}
+\vspace{-3mm}
+
+%%%%%%%%%
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<plotnetbiov11,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+data("PPI_Athalina")
+
+data("color_list")
+id <- plot.modules(g1, layout.function = c(layout.fruchterman.reingold),
+modules.color = sample(color.list$bright),layout.overall = layout.star,
+sf=40, tkplot=FALSE)
+@ 
+}
+\caption{Modular layout style of the {\it{A. Thaliana}} network, the coordinates of the nodes in each module are determined by Fruchterman-Reingold. The module consisting of the largest number of nodes is placed in the center. The other modules are arranged in a circular manner. The colors for the modules are chosen randomly from a compiled list of bright colors.
+}  
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\subsection{\textcolor{blue}{Modular} layout of the {\it{A. Thaliana}} network: Mixed layouts}
+\vspace{-3mm}
+
+%%%%%%%%
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<plotnetbiov12,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+data("PPI_Athalina")
+
+data("color_list")
+id <- plot.modules(g1, layout.function = c(layout.fruchterman.reingold,
+layout.star,layout.reingold.tilford, layout.graphopt,layout.kamada.kawai),
+modules.color = sample(color.list$bright), sf=40, tkplot=FALSE)
+@ 
+}
+ \caption{Modular layout style of the {\it{A. Thaliana}} network. The position of different modules is determined by different layouts given as inputs to the function. Colors for the modules are chosen randomly from a compiled list of bright colors.   
+}  
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\subsection{\textcolor{blue}{Modular} layout of the {\it{A. Thaliana}} network: Node coloring}
+\vspace{-3mm}
+%%%%%%%%
+
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<plotnetbiov13,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+data("PPI_Athalina")
+
+data("color_list")
+
+
+cl <- list(rainbow(40),  heat.colors(40) )
+
+id <- plot.modules(g1,  col.grad=cl , tkplot=FALSE)
+
+@ 
+}
+\caption{Modular layout of the {\it{A. Thaliana}} network. The position of the nodes for each module is determined by a circular tree view. Nodes in each modules are colored based on their degree according to a range of colors provided as an input. For example, nodes in module $2$ are colored by a range of heat-colors, where dark colors indicate a high degree and light colors are indicating a low degree. 
+}  
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\subsection{\textcolor{blue}{Modular} layout of the {\it{A. Thaliana}} network: Node coloring}
+\vspace{-3mm}
+%%%%%%%%
+
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<plotnetbiov14,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+data("PPI_Athalina")
+
+data("color_list")
+
+exp <- rnorm(vcount(g1))
+
+id <- plot.modules(g1, expression  = exp,  tkplot=FALSE)
+
+@ 
+}
+\caption{Modular layout of the {\it{A. Thaliana}} network. When an expression value is given for all nodes then the nodes are colored based on their expression values from the range of colors (red to blue - smaller to higher expression value). 
+}  
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\subsection{\textcolor{blue}{Modular} layout of the {\it{A. Thaliana}} network highlighting gene expression in selected modules}
+\vspace{-3mm}
+%%%%%%%%
+
+\begin{figure}[!h]
+\centering 
+\small{
+<<plotnetbiov15,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+data("PPI_Athalina")
+
+data("color_list")
+
+exp <- rnorm(vcount(g1))
+
+id <- plot.modules(g1, modules.color="grey",
+expression  = exp, exp.by.module = c(1,2,5),  tkplot=FALSE)
+
+@
+}
+\caption{Modular layout of the {\it{A. Thaliana}} network highlighting the variation of the expression values of nodes in particular modules. In this example we are highlighting the variation in the modules $1$, $2$, $5$ (from red to blue - low to high). 
+}  
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+\newpage
+\subsection{\textcolor{blue}{Modular} layout with hierarchical plots for the modules of the {\it{A. Thaliana}} network}
+\vspace{-3mm}
+%%%%%%%%
+
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<plotnetbiov16,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+data("PPI_Athalina")
+
+data("color_list")
+
+id <- plot.modules(g1, layout.function = layout.reingold.tilford, 
+col.grad=list(color.list$citynight), tkplot=FALSE)
+@ 
+}
+\caption{A multiroot-tree (hierarchical) plot of the modules  of the {\it{A. Thaliana}} network. The nodes are colored in each module based on their degree by providing a range of colors.
+}  
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\subsection{\textcolor{red}{Global} view of  the {\it{A. Thaliana}} network}
+\vspace{-3mm}
+%%%%%%%%
+
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<plotnetbiov17,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+data("PPI_Athalina")
+
+data("color_list")
+n = vcount(g1)
+xx <- plot.NetworkSperical(g1, mo="in", v.lab=FALSE, tkplot = FALSE,v.size=1 )
+@
+}
+\caption{A global view of  the {\it{A. Thaliana}} network, starting with the node of the highest degree. 
+}  
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\subsection{A star-like \textcolor{red}{global} view of a scale free network starting with the five highest degree nodes}
+\vspace{-3mm}
+%%%%%%%%
+
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<plotnetbiov18,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+g <- barabasi.game(500)
+xx <- plot.NetworkSperical.startSet(g, mo = "in", nc = 5)
+@
+}
+\caption{A star-like global view of a scale free network starting with the five highest degree nodes. 
+}  
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\subsection{A spiral-view of  \textcolor{blue}{modules} in a network}
+\vspace{-3mm}
+%%%%%%%%
+
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<plotnetbiov19,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+g <- barabasi.game(3000, directed=FALSE)
+fn <- function(g)plot.spiral.graph(g,60)$layout
+xx <- plot.modules(g, layout.function=fn, 
+layout.overall=layout.fruchterman.reingold,sf=20, v.size=1, color.random=TRUE)
+@
+}
+\caption{A spiral-view of  modules in a network.
+}    
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\subsection{A spiral-view of \textcolor{blue}{modules} in a network}
+\vspace{-3mm}
+%%%%%%%%
+
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<plotnetbiov20,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+g <- barabasi.game(3000, directed=FALSE)
+fn <- function(g)plot.spiral.graph(g,12)$layout
+xx <- plot.modules(g, layout.function=fn, 
+layout.overall=layout.fruchterman.reingold,sf=20, v.size=1, color.random=TRUE)
+@
+}
+\caption{A spiral-view of modules in a network.
+}    
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\subsection{\textcolor{red}{Global} layout: A spiral-view of the {\it{A. Thaliana}} network starting with the highest degree node}
+\vspace{-3mm}
+%%%%%%%%
+
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<plotnetbiov21,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+data("PPI_Athalina")
+data("color_list")
+xx <- plot.spiral.graph(g1, tp=179,vertex.color=sample(color.list$bright) )
+@
+}
+\caption{A spiral-view of the {\it{A. Thaliana}} network starting with the highest degree node. Vertices are uniquely colored according to their degree.
+}  
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\subsection{\textcolor{red}{Global} layout: A spiral-view of the {\it{A. Thaliana}} network starting with the highest degree node}
+\vspace{-3mm}
+%%%%%%%%
+
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<plotnetbiov22,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+data("PPI_Athalina")
+data("color_list")
+xx <- plot.spiral.graph(g1, tp=60,vertex.color=sample(color.list$bright))
+@
+}
+\caption{ A spiral-view of  the {\it{A. Thaliana}} network starting with the highest degree node. Vertices are uniquely colored according to their degree.
+}  
+\end{figure}
+
+
+
+
+
+
+
+
+\newpage
+\subsection{\textcolor{red}{Global} layout: A spiral-view of the {\it{A. Thaliana}}, nodes are ranked using reingold-tilford algorithm}
+\vspace{-3mm}
+%%%%%%%%
+
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<plotnetbiov23,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+data("PPI_Athalina")
+data("color_list")
+xx <- plot.spiral.graph(g1, tp=90,vertex.color="blue",e.col="gold",
+rank.function=layout.reingold.tilford)
+@
+}
+\caption{ A spiral-view of  the {\it{A. Thaliana}}. Nodes are ranked using reingold-tilford algorithm .
+}  
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\subsection{An abstract \textcolor{blue}{module} view of the {\it{A. Thaliana}} network}
+\vspace{-3mm}
+%%%%%%%%
+
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<plotnetbiov24,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+data("PPI_Athalina")
+data("color_list")
+xx <- plot.abstract.module(g1, tkplot = FALSE, layout.function=layout.star)
+
+
+@
+}
+\caption{ An abstract-view of the {\it{A. Thaliana}} network, the position of the nodes for each module is determined by a star-view layout. The edges between the modules are collapsed to single edge. The width of the edges is proportional to the total number of connection between the modules. Nodes in a module are colored by a range of heat-colors, where dark colors indicate a high degree and light colors are indicating a low degree of the node. 
+}  
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\subsection{An abstract \textcolor{blue}{module} of the {\it{A. Thaliana}} network}
+\vspace{-3mm}
+
+%%%%%%%%
+
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<plotnetbiov25,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+data("PPI_Athalina")
+data("color_list")
+
+xx <- plot.abstract.nodes(g1,  nodes.color ="grey",layout.function=layout.star, 
+edge.colors= sample(color.list$bright), tkplot =FALSE,lab.color = "red")
+@
+}
+\caption{
+An abstract view of the {\it{A. Thaliana}} network where the modules are replaced by single nodes and the connections between the modules are collapsed to single edge. The size of a node is proportional to the total umber of nodes in the module and the edge width is proportional to the total number of connection between the modules. The module containing the largest number of nodes is placed in the center, the other modules are arranged in a circular manner.
+}  
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\subsection{A \textcolor{blue}{modular} view of the {\it{A. Thaliana}} network}
+\vspace{-3mm}
+
+%%%%%%%%
+
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<plotnetbiov26,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+data("PPI_Athalina")
+data("color_list")
+xx <- splitg.mst(g1,  vertex.color = sample(color.list$bright), 
+colors = color.list$warm[1:30], tkplot = FALSE)
+@
+}
+\caption{A modular view of the {\it{A. Thaliana}} network where the coordinates of the nodes in a module are determined by the Fruchterman-Reingold algorithm of the MST of the module. The MST edges of the modules are plotted in white color and all other edges in the module are plotted with a range of warm color. The colors for the modules are chosen randomly. 
+}  
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+%%%%%%%%%%%
+
+
+
+
+
+
+
+
+%%%%%%%%%%%
+
+
+\subsection{\textcolor{green}{Information flow} layout: Level plot of the {\it{A. Thaliana}} network}
+\vspace{-3mm}
+
+\begin{figure}[!h]
+\centering 
+\small{ 
+<<poltnetbiov27,fig=TRUE,onefig=TRUE,echo=TRUE,scale=0.1>>= 
+data("PPI_Athalina")
+
+xx <- level.plot(g, tkplot=FALSE, level.spread=FALSE,
+layout.function=layout.fruchterman.reingold)
+@
+}
+\caption{Level plot of the {\it{A. Thaliana}} network. The initial nodes on level $1$ are picked randomly and their adjacent neighbors of these nodes are iteratively plotted on consequtive levels. The initial nodes are colored in orange, all other nodes are shown in maroon. The edges connecting nodes on the same level are shown in blue with a curved shape.
+}  
+\end{figure}
+
+
+
+
+
+
+ \clearpage
+ 
+ 
+ \section{Algorithmic description of the main graph-layouts}
+ 
+\subsection{\textcolor{red}{Global} view}
+ 
+\begin{algorithm} 
+\caption{Minimum spanning tree global graph layout}\label{algo1}
+\begin{algorithmic}
+\STATE $n$ := total no. of vertices.
+\STATE $E$ := total no. of edges of a graph $G$.
+\STATE $G_{mst}$ : minimum spanning tree of a graph $G$, with $V$ vertices and $E_{mst}$ edges.
+\STATE $ecol_{mst}$ := $COLOR$ (assign a unique color to the edges ($E_{mst}$) of the minimum spanning tree graph ). 
+\STATE $coord$ := apply forced based algorithm (e.g. Fruchterman-Reingold) on $G_{mst}$, and get the position of nodes.
+\STATE $E_{rest}$ := $E - E_{mst}$.
+\STATE $color\_vector$:= a color vector with different shades of a color.
+
+\REPEAT
+  \STATE assign a color to $E_{rest}(i)$ from $color\_vector$, based on the distance between their connecting nodes. 
+
+\UNTIL all $E_{rest}$ are colored.
+
+\STATE plot the graph $G$, with $coord$ and their edge colors.         \\
+
+\end{algorithmic} 
+\end{algorithm}
+
+
+\newpage
+
+\subsection{\textcolor{blue}{Modular} view}
+\begin{algorithm}
+\caption{Modular graph layout}\label{algo3}
+\begin{algorithmic}
+\STATE $E$ = total number of edges of the graph $G$.
+\STATE $M$ = a vector of modules of the graph $G$.
+\STATE  $COORD$ := get coordinates for location of modules $M$ (the location of modules can be identified by standard layout or user defined algorithms on an abstract graph  creating from modules where each modules is replaced by a node and edges between modules by a single edge).
+\STATE  $RANK$ := rank $COORD$ depending on the features of modules (for example module with maximum no of node will be plotted in a specific location).
+\REPEAT
+  \STATE $M_k$ : pick $k^{th}$ module  from $M$ based on its $RANK(k)$.
+  \STATE $RANK_{M_k}$: assign ranks to the nodes of the module $M_k$.
+  \STATE $COORD_{M_{k}}$ := get coordinates for the nodes of $k^{th}$ module using any standard layout algorithm.
+  \STATE $COORD_{M_{k}}$ := transform each coordinate of $COORD_{M_{k}}$ to the coordinate location $COORD(k)$ of module $k$ depending on its rank $RANK(k)$. 
+  \STATE $VCOL_{M_k}$:= assign colors to the nodes of $M_k(i)$ based on their ranks $RANK_{M_k}(i)$. 
+  \STATE $ECOL_{M_k}$:= assign colors to the edges of $M_k$.
+\UNTIL  all modules are assigned their properties.
+\STATE $ECOL_{rest}$:= assign colors to the edges of $G$ which are joining two modules.
+ \STATE plot the graph $G$ with the assigned color to the vertices and edges.  
+ \end{algorithmic}
+\end{algorithm} 
+
+
+\newpage
+\subsection{\textcolor{green}{Multiroot Tree (Hierarchical)} view}
+\begin{algorithm} 
+\caption{To visualize network with respect to the spread of information  within the network}\label{algo2}
+\begin{algorithmic}
+\STATE $n$ = total no. of vertices of a graph $G =(V, E)$
+\STATE $V_k$ = Pick $k$ vertices randomly from $V$
+\STATE $level$ = 0 (initial level)
+\STATE plot $V_k$ linearly at $level$
+\STATE $levelup$ = 1 
+\STATE $leveldown$ = -1
+\STATE $V_{kup}^{out}$ = outgoing nodes of $V_k$
+\STATE $V_{kdown}^{in}$ = incoming nodes of $V_k$
+\STATE $V_{kup}^{in}$ = NULL
+\STATE $V_{kdown}^{out}$ = NULL
+\STATE plot $V_{kup}$ linearly at $levelup$
+\STATE plot $V_{kdown}$ linearly at $leveldown$
+%\STATE $levelup$ = $levelup$ + 1
+%\STATE $leveldown$ = $leveldown$ -1 
+\REPEAT
+                      \STATE $V_{kup}^{out}$ = outgoing nodes of $V_{kup}^{out}$
+                      \STATE $V_{kup}^{in}$ =  incoming nodes of $V_{kup}^{out}$
+                      \STATE $V_{kdown}^{out}$ = outgoing nodes of $V_{kdown}^{in}$
+                      \STATE $V_{kdown}^{in}$ = incoming nodes of $V_{kdown}^{in}$
+                      
+                      \STATE  Assign $levelup$ + 1 as $Y$ coordinates to $V_{kup}^{out}$  
+                      \STATE  Assign $levelup$ - 1 as $Y$ coordinates to $V_{kup}^{in}$ 
+                       
+                      \STATE  Assign $leveldown$ - 1 as $Y$ coordinates to  $V_{kdown}^{in}$
+                       \STATE Assign $leveldown$ - 1 as $Y$ coordinates to $leveldown$ + 1
+                      \STATE  $levelup$ = $levelup$ + 1
+                      \STATE  $leveldown$ = $leveldown$ -1
+\UNTIL      $V_{kup}$ = 0 $AND$  $V_{kdown}$ = 0  
+
+\STATE Obtain $X$ coordinates of $G$ by using any force-based algorithm.
+\STATE Plot nodes of $G$ to their corresponding $X$, $Y$ locations.
+\end{algorithmic}
+\end{algorithm}
+
+\newpage
+\subsection{\textcolor{purple}{Information flow} view}
+\begin{algorithm} 
+\caption{To visualize network with respect to the spread of information  within the network}\label{algo2}
+\begin{algorithmic}
+\STATE $n$ = total no. of vertices of a graph $G =(V, E)$
+\STATE $ECOL$ = is a vector of colors of edges.
+\STATE $VCOL$ = is a vector of colors of nodes.
+
+
+\COMMENT $V_{source}$ and $V_{dest}$ are source and desination nodes between which the information flow to be visualized.
+\STATE $V_{source}$ = A vector of $k_1$ nodes of $G$ 
+\STATE $V_{dest}$ = A vector of $k_2$ nodes of $G$
+\STATE Apply shortest path distance algorithm $F_{shortest}(G, V_{source}, V_{dest})$ on $G$ to find  shortest paths between $V_{source}$ and $V_{des}$
+\STATE $E_{sp}$ := $F_{shortest}(G, V_{source}, V_{dest})$ (A vector of edge objects of shortest path between $V_{source}$ and $V_{des}$)
+\STATE $V_{path}$ is a set of nodes which connectes $V_{source}$ and $V_{des}$ through $E_{sp}$
+\STATE $ECOL_{E_{sp}}$:= assign a color to the edges of $E_{sp}$. 
+\STATE $VCOL_{V_{path}}$:= assign a color to the nodes of $V_{path}$.
+\STATE $COORD$ = Find coordinates of $G$ using Algorihm $2$ or $3$
+\STATE Plot nodes of $G$ to their corresponding  locations specified by $COORD$.
+
+\end{algorithmic}
+\end{algorithm}
+\newpage
+<<>>=
+sessionInfo()
+@
+\bibliography{nbv}
+\end{document}

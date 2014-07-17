@@ -1,0 +1,14 @@
+Package: netbiov
+Type: Package
+Title: A package for visualizing complex biological network
+Version: 0.99.3
+Date: 2014-20-06
+Author: Shailesh tripathi and Frank Emmert-Streib
+Maintainer: Shailesh tripathi <s.tripathi@qub.ac.uk>
+Description: A package that provides an effective visualization of
+        large biological networks
+Depends: R (>= 3.1.0), igraph (>= 0.7.1)
+Suggests: BiocStyle,RUnit,BiocGenerics,Matrix
+biocViews: GraphAndNetwork, Network, Software, Visualization
+License: GPL (>= 2)
+URL: http://www.bio-complexity.com
