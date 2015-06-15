@@ -146,6 +146,7 @@ root=as.vector(V(g)[which.max(degree(g))-1]), circular=TRUE)
           rownames(dg1) <- names(dg)
           dg1 <- dg1[rownames(crd1),]
           #########print(dg1)
+	  ######## print("crd1")	
             cols <- cols[rownames(dg1)]
   }
         crd <- cbind(dg1, cols)
