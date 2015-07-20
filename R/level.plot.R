@@ -88,6 +88,8 @@
   #print(paste("initial nodes =>", toString(k)))
   mat <- .getalllevels(g,k,plotsteps=plotsteps,dirname=dirname,
   e.curve=e.curve,level.spread=level.spread)
+  #print("hello")
+  #print(head(mat))	
   minv <- min(mat[,2])
   maxv <- max(mat[,2])
   mat1 <-c()
@@ -105,7 +107,7 @@
     mod=order_degree))
     
   }
-  
+   
   mat2<-matrix(0,length(mat1[,1]),4)
   mat2[,1]<-as.numeric(rownames(mat1))
   mat2[,2]<-mat1[,1]
@@ -118,9 +120,11 @@
                 mat3 <- mat2
         }
         cole <- c()
+	#print(edge.col)
         if(length(E(g))> 0){
                 cole<-.edgeCol(g,mat3,edge.col)
         }
+	#print(cole)
   if(length(vertex.colors)<3){
           col1<-colors()[mat3[,4]]
   }
@@ -349,7 +353,7 @@ level.spread=FALSE){
 ##########################################################
 ########### Internal function, returns indegree nodes and outdegree nodes of a vector of nodes of a graph object ##################### 
 .getneighbors <- function(g,nm, mod = 1,flag=0){
-    
+    #V(g)$name <- c(1:vcount(g))   
     k<-nm
     outnode <- c()
     outi <- c()
@@ -360,8 +364,11 @@ level.spread=FALSE){
 
     for(i in 1:length(k))
     {
-      
-      outnode <- neighbors(g, V(g)[k[i]], mode = "out")
+     #print("xx")
+     #print(k[i]) 
+     #print(as.vector(neighbors(g, V(g)[k[i]], mode = "out")))
+      outnode <- as.vector(neighbors(g, k[i], mode = "out"))
+      #print("xx")
       outi <- append(outi,outnode)
       if(length(outnode) > 0){
         for(j in 1:length(outnode)){
@@ -372,14 +379,17 @@ level.spread=FALSE){
           {  
             
             g <- delete.edges(g, E(g, P=c(k[i],outnode[j])))
+        #	print("xx")    
+	#g <- delete.edges(g, paste(V(g)$name[k[i]],"|",V(g)$name[outnode[j]],sep=""))
           }
         }
       }
     }
+    #print("xx2")	
     for(i in 1:length(k))
     {
       
-      innode <- neighbors(g, V(g)[k[i]], mode = "in")
+      innode <- as.vector(neighbors(g, V(g)[k[i]], mode = "in"))
       ini <- append(ini,innode)
       if(length(innode) > 0){
         for(j in 1:length(innode)){
@@ -387,6 +397,7 @@ level.spread=FALSE){
           if(are.connected(g,k[i],innode[j]))
           {  
             g <- delete.edges(g, E(g, P=c(k[i],innode[j])))
+            #g <- delete.edges(g, paste(V(g)$name[k[i]],"|",V(g)$name[innode[j]],sep=""))
           }
         }
       }
@@ -428,12 +439,9 @@ level.spread=FALSE){
   }
   for(i in 1:ecount(g)){
     ##print(edgecol)
-    ei <- get.edge(g,i)
-    ##print(ei)
+    ei <- ends(g,i,names=FALSE)
     e1 <- which(mat3[,1]==ei[1])
     e2 <- which(mat3[,1]==ei[2])
-    ##print(e1)
-    ##print(e2)
     if((length(e1)&&length(e2))>0){
     
       if(abs(mat3[e1,3] - mat3[e2,3])>1 && ((mat3[e1,3] - mat3[e2,3])>1))
@@ -781,7 +789,7 @@ level.spread=FALSE){
 .curve.level1 <- function(mat=NULL, g, e.curve=.5){
   ##print(head(mat))
   V(g)$name <- c(1:vcount(g))
-  print(V(g)$name)
+  #print(V(g)$name)
   el <- get.edgelist(g)
   if(is.na(el[1])||is.na(el[2])){
     return(NULL)

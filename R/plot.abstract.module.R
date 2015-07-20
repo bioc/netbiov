@@ -150,7 +150,7 @@ vertex.frame.color=gparm$vertex.frame.color, edge.width=gparm$edge.width)
         mx <- function(x){ return(x[which.max(abs(x))])}
         chngdr <- function(x){if(x[2]<0){x[2] <- abs(x[2])};return(x)}
   if(is.null(layout.function)||(class(layout.function)!="function")){
-    crd1 <- layout.reingold.tilford(g, 
+    crd1 <- layout_as_tree(g, 
 root=as.vector(V(g)[which.max(degree(g))]), circular=TRUE)
     crd1[(is.nan(crd1))] <- 0
   }
@@ -158,7 +158,7 @@ root=as.vector(V(g)[which.max(degree(g))]), circular=TRUE)
     tryCatch({ 
       crd1 <- layout.function(g)
     }, error = function(ex) {
-      crd1 <- layout.reingold.tilford(g, 
+      crd1 <- layout_as_tree(g, 
 root=as.vector(V(g)[which.max(degree(g))]), circular=TRUE)
       crd1[(is.nan(crd1))] <- 0
       ############print(ex)
@@ -256,10 +256,10 @@ scale.module=NULL, abstract.graph=NULL){
   if(is.null(layout.overall)||(class(layout.overall)!="function")){
     if(!is.null( abstract.graph)){
       gx <- graph.adjacency(abstract.graph,mode="undirected") 
-            crdf <- layout.fruchterman.reingold(gx)
+            crdf <- layout_with_fr(gx)
     }
     else{
-    crdf <- layout.fruchterman.reingold(graph.empty(length(lst)))}
+    crdf <- layout_with_fr(graph.empty(length(lst)))}
   }
   else{
     if(!is.null( abstract.graph)){
@@ -643,10 +643,8 @@ ymin=-1*(scale.y+max.k+20+sf) )
 mod.list, modules.name.num){
   if( (is.null(mod.list))){
     #if(class(module.function))
-      fc <- fastgreedy.community(g)
-      memb <- community.to.membership(g, fc$merges,
-                steps=which.max(fc$modularity)-1)
-      memb <- memb$membership
+      fc <- multilevel.community(g)
+      memb <- fc$membership
       un <- unique(memb)
       mod.list <- lapply(sort(un), function(x)which(x==memb))
       #mod.list <- lapply(mod.list, function(x)x-1)
@@ -1165,7 +1163,7 @@ edge.colors=c("red", "black"),layout.function=NULL){
         chngdr <- function(x){if(x[2]<0){x[2] <- abs(x[2])};return(x)}
 
         if(is.null(layout.function)||(class(layout.function)!="function")){
-                crd1 <- layout.fruchterman.reingold(graph.empty(vcount(g)))
+                crd1 <- layout_with_fr(graph.empty(vcount(g)))
         }
         else{
                 crd1 <- layout.function(g)

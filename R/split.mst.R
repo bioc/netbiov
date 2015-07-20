@@ -141,10 +141,8 @@ lab.dist=lab.dist, vertex.frame.color=V(g1)$color, edge.width=e.s, bg=bg)
     }
   }
   if(is.null(mod.list) || (length(unlist(mod.list))!=vcount(g))){
-    fc <- fastgreedy.community(g)
-           memb <- community.to.membership(g, fc$merges,
-           steps=which.max(fc$modularity)-1)
-           memb <- memb$membership
+    fc <- multilevel.community(g)
+           memb <- fc$membership
            un <- unique(memb)
            mod.list <- sapply(sort(un), function(x)which(x==memb))
          
@@ -253,7 +251,7 @@ list(colm, vertex.color)
     layouts <- lapply(lmst, layout.function)  
   }  
   else{
-    layouts <- lapply(lmst, layout.fruchterman.reingold)  
+    layouts <- lapply(lmst, layout_with_fr)  
   }
   lorder <- c() 
   for(i in 1:(length(lgsplit)))

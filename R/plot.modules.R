@@ -105,7 +105,7 @@ edge.width=e.width, bg=bg)
         mx <- function(x){ return(x[which.max(abs(x))])}
         chngdr <- function(x){if(x[2]<0){x[2] <- abs(x[2])};return(x)}
   if(is.null(layout.function)||(class(layout.function)!="function")){
-    crd1 <- layout.reingold.tilford(g, 
+    crd1 <- layout_as_tree(g, 
 root=as.vector(V(g)[which.max(degree(g))-1]), circular=TRUE)
 
     crd1[(is.nan(crd1))] <- 0
@@ -116,7 +116,7 @@ root=as.vector(V(g)[which.max(degree(g))-1]), circular=TRUE)
 
   
     }, error = function(ex) {
-      crd1 <- layout.reingold.tilford(g, 
+      crd1 <- layout_as_tree(g, 
 root=as.vector(V(g)[which.max(degree(g))-1]), circular=TRUE)
       crd1[(is.nan(crd1))] <- 0
     })
@@ -213,10 +213,10 @@ scale.module=NULL, abstract.graph=NULL){
   if(is.null(layout.overall)||(class(layout.overall)!="function")){
     if(!is.null( abstract.graph)){
     gx <- graph.adjacency( abstract.graph, mode="undirected") 
-           crdf <- layout.fruchterman.reingold(gx)
+           crdf <- layout_with_fr(gx)
     }
     else{  
-    crdf <- layout.fruchterman.reingold(graph.empty(length(lst)))}
+    crdf <- layout_with_fr(graph.empty(length(lst)))}
   }
   else{
     if(!is.null( abstract.graph)){
@@ -1002,10 +1002,8 @@ list(el.match, tmp.node)
 
 .mod.function.modules <- function(g){
 if(!is.directed(g)){
-  fc <- fastgreedy.community(g)
-  memb <- community.to.membership(g, 
-fc$merges, steps=which.max(fc$modularity)-1)
-  memb <- memb$membership
+  fc <- multilevel.community(g)
+  memb <- fc$membership
 }
 else{
   memb <- walktrap.community(g)$memb

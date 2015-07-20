@@ -271,7 +271,7 @@ edge.label.cex = lab.cex, edge.curved=cv)
 .getcrd.mod.nodes <- function(count.module,layout.function=NULL,g){
   dst <- function(x){return(dist(rbind(c(0,0), x)))}
   if(is.null(layout.function)||(class(layout.function)!="function")){
-          crdf <- layout.graphopt(graph.empty(length(count.module)))
+          crdf <- layout_with_graphopt(graph.empty(length(count.module)))
   }
   else{
     crdf <- layout.function(g)
@@ -292,9 +292,8 @@ edge.label.cex = lab.cex, edge.curved=cv)
 
 .mod.function.absnode <- function(g){
 if(!is.directed(g)){
-fc <- fastgreedy.community(g)
-memb<-community.to.membership(g,fc$merges,steps=which.max(fc$modularity)-1)
-memb <- memb$membership
+fc <- multilevel.community(g)
+memb <- fc$membership
 }
 else{
 memb <- walktrap.community(g)$memb

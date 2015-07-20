@@ -15,6 +15,7 @@ e.lab.col="blue",v.sf=c(3,12),e.arrow=.2){
   gtmp1 <- .set.mst.graph.attributes(x, v.lab)
   #print("h2")  
   rm(x)
+  	
 
   g <- gtmp1[[1]]
   #print(get.edgelist(g))
@@ -215,7 +216,7 @@ e.lab.col="blue",v.sf=c(3,12),e.arrow=.2){
   }
   else{
     params <- list(niter=200)
-    crd <-layout.fruchterman.reingold(mst, params)
+    crd <-layout_with_fr(mst, niter=500)
   }
   crd <- cbind(crd, c(1:(length(crd[,1]))))
   ##print(ecount(gt))

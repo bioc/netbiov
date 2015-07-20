@@ -438,8 +438,8 @@ arrange.bydegree=arrange.bydegree, exp.mod = exp.mod)
   ###print(is.null(layout.function))
   ###print(class(layout.function))
        if(is.null(layout.function)||(class(layout.function)!="function")){
-    crd1 <- layout.reingold.tilford(g, 
-    root=as.vector(V(g)[which.max(degree(g))-1]), circular=TRUE)
+    crd1 <- layout_as_tree(g, 
+    root=as.vector(V(g)[which.max(degree(g))]), circular=TRUE)
     crd1[(is.nan(crd1))] <- 0
   }
   else{
@@ -447,8 +447,8 @@ arrange.bydegree=arrange.bydegree, exp.mod = exp.mod)
       
       crd1 <- layout.function(g)
     }, error = function(ex) {
-    crd1 <- layout.reingold.tilford(g, 
-    root=as.vector(V(g)[which.max(degree(g))-1]),circular=TRUE)
+    crd1 <- layout_as_tree(g, 
+    root=as.vector(V(g)[which.max(degree(g))]),circular=TRUE)
     crd1[(is.nan(crd1))] <- 0
     })
     
@@ -510,13 +510,13 @@ arrange.bydegree=arrange.bydegree, exp.mod = exp.mod)
     if(!is.null( abstract.graph)){
 
       gx <- graph.adjacency( abstract.graph, mode="undirected")
-            crdf <- layout.fruchterman.reingold(gx)
+            crdf <- layout_with_fr(gx)
       #####print("hello")
       #plot(gx, layout=crdf) 
 
     }
     else{  
-    crdf<-layout.fruchterman.reingold(graph.empty(length(lst)))
+    crdf<-layout_with_fr(graph.empty(length(lst)))
     }
   }
   else{
@@ -623,10 +623,8 @@ arrange.bydegree=arrange.bydegree, exp.mod = exp.mod)
 
 .mod.function <- function(g){
     if(!is.directed(g)){
-      fc <- fastgreedy.community(g)
-      memb <- community.to.membership(g, fc$merges, 
-      steps=which.max(fc$modularity)-1)
-      memb <- memb$membership
+      fc <- multilevel.community(g)
+      memb <- fc$membership
     }
     else{
       memb <- walktrap.community(g)$memb
