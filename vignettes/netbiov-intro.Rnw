@@ -6,7 +6,6 @@
 \usepackage{algorithm}
 \usepackage{algorithmic}
 %\usepackage{bbb}
-\usepackage{Sweave}
 %################
 <<style-Sweave, eval=TRUE, echo=FALSE, results=tex>>=
 BiocStyle::latex()
