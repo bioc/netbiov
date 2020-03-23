@@ -157,16 +157,16 @@ plot.NetworkSperical.startSet<- function(x, mo="in", nc=5, tkplot=FALSE, v.lab=F
         }
   names(d) <- c(1:(n))
 
-        if(mo == "in" && (class(adj)=="matrix")){
+        if(mo == "in" && (class(adj)[1]=="matrix")){
           d <- colSums(adj) # in degrees
         }
-  if(mo == "out" && (class(adj)=="matrix")){
+  if(mo == "out" && (class(adj)[1]=="matrix")){
           d <- rowSums(adj) # out degrees
         }
-        if(mo == "in" && (class(adj)=="Matrix")){
+        if(mo == "in" && (class(adj)[1]=="Matrix")){
           d <- Matrix::colSums(adj) # in degrees
         }
-  if(mo == "out" && (class(d)=="Matrix")){
+  if(mo == "out" && (class(d)[1]=="Matrix")){
           d <- Matrix::rowSums(adj) # out degrees
         }
   
