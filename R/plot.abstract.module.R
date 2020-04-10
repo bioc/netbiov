@@ -611,7 +611,10 @@ ymin=-1*(scale.y+max.k+20+sf) )
      rnk <- (((510 - 1)*(abs(expression)-min(abs(expression))))/
 (max(abs(expression))-min(abs(expression)))) + 1 
      exp.col <- sapply(round(rnk, digits=0),.rgbToHex.mod)  
-     if(exp.by.module||(class(exp.by.module)=="integer")){
+     if(class(exp.by.module)=="logical"){
+          expmod <- exp.by.module
+      }	
+     if((class(exp.by.module)=="integer")){
       expmod=TRUE
      }
   }
