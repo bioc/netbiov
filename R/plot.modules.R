@@ -567,8 +567,11 @@ total_color = 20, start = 1 ){
 min(abs(expression))))/(max(abs(expression))-min(abs(expression)))) + 1 
     #rnk <- (abs(expression)*510)/max(abs(expression))
     #exp.col <- sapply(rank(expression),.rgbToHex.mod)
-    exp.col <- sapply(rnk,.rgbToHex.mod)  
-    if(exp.by.module||(class(exp.by.module)=="integer")){
+    exp.col <- sapply(rnk,.rgbToHex.mod) 
+    if(class(exp.by.module)=="logical"){
+    	expmod <- exp.by.module
+     }		 
+    if((class(exp.by.module)=="integer")){
       expmod=TRUE
     }
   }
