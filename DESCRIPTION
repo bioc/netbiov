@@ -1,7 +1,7 @@
 Package: netbiov
 Type: Package
 Title: A package for visualizing complex biological network
-Version: 1.32.0
+Version: 1.33.0
 Date: 2015-19-07
 Author: Shailesh tripathi and Frank Emmert-Streib
 Maintainer: Shailesh tripathi <shailesh.tripathy@gmail.com>
