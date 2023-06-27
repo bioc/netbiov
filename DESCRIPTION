@@ -1,7 +1,7 @@
 Package: netbiov
 Type: Package
 Title: A package for visualizing complex biological network
-Version: 1.35.0
+Version: 1.35.1
 Date: 2015-19-07
 Author: Shailesh tripathi and Frank Emmert-Streib
 Maintainer: Shailesh tripathi <shailesh.tripathy@gmail.com>
@@ -12,3 +12,4 @@ Suggests: BiocStyle,RUnit,BiocGenerics,Matrix
 biocViews: GraphAndNetwork, Network, Software, Visualization
 License: GPL (>= 2)
 URL: http://www.bio-complexity.com
+PackageStatus: Deprecated
